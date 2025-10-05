@@ -1,7 +1,6 @@
 template <typename T>
-ArrayStack<T>::ArrayStack(int i) {
-    // TODO
-}
+ArrayStack<T>::ArrayStack(int i)
+: buffer(new T[i]), maxSize(i) { }
 
 template <typename T>
 ArrayStack<T>::ArrayStack(const ArrayStack<T>& copyObj) {
@@ -24,12 +23,20 @@ ArrayStack<T>::~ArrayStack() {
 
 template <typename T>
 void ArrayStack<T>::clear() {
-    // TODO
+    delete[] buffer;
+    buffer       = nullptr;
+    this->length = 0;
 }
 
 template <typename T>
 void ArrayStack<T>::copy(const ArrayStack<T>& copyObj) {
-    // TODO
+    this->length = copyObj.length;
+    maxSize      = copyObj.maxSize;
+    buffer       = new T[maxSize];
+
+    for (int i = 0; i < copyObj.length; i++) {
+        buffer[i] = copyObj.buffer[i];
+    }
 }
 
 template <typename T>
@@ -54,22 +61,57 @@ bool ArrayStack<T>::isFull() const {
 
 template <typename T>
 T ArrayStack<T>::peek() const {
-    // TODO
+    if (isEmpty()) {
+        throw string("peek: error, stack is empty, cannot access the top");
+    }
+
+    return buffer[this->length - 1];
 }
 
 template <typename T>
 void ArrayStack<T>::pop() {
-    // TODO
+    if (isEmpty()) {
+        throw string("pop: error, stack is empty, avoiding underflow");
+    }
+
+    this->length--;
 }
 
 template <typename T>
 void ArrayStack<T>::push(const T& elem) {
-    // TODO
+    if (isFull()) {
+        throw string("push: error, stack is full, avoiding overflow");
+    }
+
+    if (buffer == nullptr) {
+        buffer = new T[maxSize];
+    }
+
+    buffer[this->length++] = elem;
 }
 
 template <typename T>
 void ArrayStack<T>::rotate(typename Stack<T>::Direction dir) {
-    // TODO
+    if (isEmpty()) {
+        throw string("rotate: error, stack is empty, unable to rotate");
+    }
+    else if (dir == Stack<T>::RIGHT) {
+        T top = peek();
+        for (int i = this->length - 2; i >= 0; i--) {
+            buffer[i + 1] = buffer[i];
+        }
+        buffer[0] = top;
+    }
+    else if (dir == Stack<T>::LEFT) {
+        T bottom = buffer[0];
+        for (int i = 1; i < this->length; i++) {
+            buffer[i - 1] = buffer[i];
+        }
+        buffer[this->length - 1] = bottom;
+    }
+    else {
+        throw string("rotate: error, unknown direction");
+    }
 }
 
 template <typename T>
@@ -86,4 +128,3 @@ ostream& operator<<(ostream& outStream, const ArrayStack<T>& myObj) {
 
     return outStream;
 }
-
